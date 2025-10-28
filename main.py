@@ -47,3 +47,18 @@ async def get_name_by_query(age: str, gender: str):
 @app.post("/users/create_user")
 async def create_user(new_user=Body()):
     USERS.append(new_user)
+    
+@app.put("/users/update_user")
+async def update_user(updated_user=Body()):
+    for i in range(len(USERS)):
+        if USERS[i].get('name').casefold() == updated_user.get('name').casefaold():
+            USERS[i] = updated_user
+    
+@app.delete("/users/delete_user/{user_name}")
+async def delete_user(user_name: str):
+    for i in range(len(USERS)):
+        if USERS[i].get('name').casefold() == user_name.casefold():
+            USERS.pop(i)
+            break
+        
+        
