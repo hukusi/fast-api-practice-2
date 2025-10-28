@@ -27,3 +27,19 @@ async def get_name_by_query(age: str):
         if user.get('age').casefold() == age.casefold():
             users_arr.append(user)
     return users_arr 
+
+@app.get("/users/bygender/")
+async def get_users_by_gender_path(gender: str):
+    users_arr = []
+    for user in USERS:
+        if user.get('gender').casefold() == gender.casefold():
+            users_arr.append(user)
+    return users_arr
+
+@app.get("/users/{age}/")
+async def get_name_by_query(age: str, gender: str):
+    users_arr = []
+    for user in USERS:
+        if user.get('age').casefold() == age.casefold() and user.get('gender').casefold() == gender.casefold():
+            users_arr.append(user)
+    return users_arr 
