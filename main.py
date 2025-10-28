@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
 
 app = FastAPI()
 
@@ -43,3 +43,7 @@ async def get_name_by_query(age: str, gender: str):
         if user.get('age').casefold() == age.casefold() and user.get('gender').casefold() == gender.casefold():
             users_arr.append(user)
     return users_arr 
+
+@app.post("/users/create_user")
+async def create_user(new_user=Body()):
+    USERS.append(new_user)
