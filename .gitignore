@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pkl
+*.log
+
+# Virtualenv
+venv/
+.env/
+.venv/
+
+# macOS
+.DS_Store
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# pytest / coverage
+htmlcov/
+.coverage
+.pytest_cache/
+
+# FastAPI / Uvicorn related
+*.sqlite3
+
+
+/fastapienv/
+/.idea/FastAPI-The-Complete-Course.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
+
+__pycache__/
+.idea
+env
