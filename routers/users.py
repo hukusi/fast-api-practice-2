@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 
 import models
 from database import engine, SessionLocal
-from models import User as UserModel
+from models import Note as NoteModel, User as UserModel
 from schemas import User as UserSchema, UserCreate
+from schemas import Note as NoteSchema, NoteCreate
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -52,11 +53,10 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 
-# メモ追加
-# @router.post("/{user_id}/notes", response_model=Note)
-# def create_note_for_user(user_id: int, note: NoteCreate, db: Session = Depends(get_db)):
-#     db_note = Note(**note.dict(), user_id=user_id)
-#     db.add(db_note)
-#     db.commit()
-#     db.refresh(db_note)
-#     return db_note
+@router.post("/{user_id}/notes", response_model=NoteSchema)
+def create_note_for_user(user_id: int, note: NoteCreate, db: Session = Depends(get_db)):
+    db_note = NoteModel(**note.model_dump(), user_id=user_id)
+    db.add(db_note)
+    db.commit()
+    db.refresh(db_note)
+    return db_note
