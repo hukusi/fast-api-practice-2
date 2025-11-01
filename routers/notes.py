@@ -15,11 +15,11 @@ def get_db():
         db.close()
         
 router = APIRouter(
-    prefix='/todo',
-    tags=['todo']
+    prefix='/note',
+    tags=['note']
 )
 
 @router.get("/")
 def health_check():
-    return {'status': 'todo'}
+    return {'status': 'note'}
 
