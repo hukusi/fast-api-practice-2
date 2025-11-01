@@ -20,6 +20,8 @@ class UserBase(BaseModel):
     name: str
     age: int
     gender: str
+    role: str
+    password: str
 
 class UserCreate(UserBase):
     pass
