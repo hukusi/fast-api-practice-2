@@ -4,15 +4,20 @@ from models import Staff
 from schemas import Staff
 from passlib.context import CryptContext
 from database import SessionLocal
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from models import User as UserModel
 from typing import Annotated
+from jose import jwt, JWTError
+from datetime import timedelta, datetime, timezone
+from starlette import status
 
-
+SECRET_KEY ="5722b250fd0397914153b81a7d5a622a913e432dd447a68c658cff81e2956386"
+ALGORITHM = 'HS256'
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 def get_db():
     db = SessionLocal()
@@ -31,6 +36,23 @@ def authenticate_user(username: str, password: str, db):
         return False
     return user
 
+def create_access_token(username: str, user_id: int, role: str, expires_delta: timedelta):
+    encode = {'sub': username, 'id': user_id, 'role': role}
+    expires = datetime.now(timezone.utc) + expires_delta
+    encode.update({'exp': expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_user(token: Annotated[str, Depends(oauth2_bearer)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get('sub')
+        user_id: int = payload.get('id')
+        user_role: str = payload.get('role')
+        if username is None or user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Not validateuser')
+        return {'username': username, 'id': user_id, 'user_role': user_role}
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Not validate user.')
 
 @router.post("/login")
 def login(email: str, password: str, db: Session = Depends(get_db)):
@@ -45,8 +67,9 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
                                  db: db_dependency):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
-        return 'Could not validate user.'
-    return 'access_token'
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Not validate user.')
+    token = create_access_token(user.name, user.id, user.role, timedelta(minutes=20))
+    return {'access_token': token, 'toke_type': 'bearer'}
 
 
 
