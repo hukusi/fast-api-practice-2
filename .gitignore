@@ -38,3 +38,5 @@ htmlcov/
 __pycache__/
 .idea
 env
+
+*.db
