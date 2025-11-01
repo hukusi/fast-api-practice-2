@@ -40,3 +40,8 @@ __pycache__/
 env
 
 *.db
+
+alembic/__pycache__/
+alembic/*.pyc
+alembic/versions/__pycache__/
+alembic/versions/*.pyc
