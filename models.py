@@ -21,6 +21,8 @@ class User(Base):
     name = Column(String, nullable=False)
     age = Column(Integer)
     gender = Column(String)
+    password = Column(String)
+    role = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -8,10 +8,12 @@ from database import engine, SessionLocal
 from models import Note as NoteModel, User as UserModel
 from schemas import User as UserSchema, UserCreate
 from schemas import Note as NoteSchema, NoteCreate
+from passlib.context import CryptContext
 
 models.Base.metadata.create_all(bind=engine)
 
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_db():
     db = SessionLocal()
@@ -38,7 +40,9 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = UserModel(
         name=user.name,
         age=user.age,
-        gender=user.gender
+        gender=user.gender,
+        role=user.role,
+        password=pwd_context.hash(user.password),
     )
     db.add(db_user)
     db.commit()
