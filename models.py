@@ -14,7 +14,7 @@ class Staff(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class Users(Base):
+class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)

@@ -1,19 +1,9 @@
-from fastapi import APIRouter, Depends
-from database import SessionLocal
-from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from models import Users
+from models import Staff
+from schemas import Staff
 from passlib.context import CryptContext
-
-import models
-from database import engine, SessionLocal
-
-models.Base.metadata.create_all(bind=engine)
-
-
-bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-
+from database import SessionLocal
 
 def get_db():
     db = SessionLocal()
@@ -22,40 +12,13 @@ def get_db():
     finally:
         db.close()
 
-db_dependency = Annotated[Session, Depends(get_db)]
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-class CreateUserRequest(BaseModel):
-    username: str
-    email: str
-    first_name: str
-    last_name: str
-    password: str
-    role: str
-    phone_number: str
-        
-router = APIRouter(
-    prefix='/auth',
-    tags=['auth']
-)
-
-@router.get("/")
-def health_check():
-    return {'status': 'auth'}
-
-@router.post("/")
-async def create_user(db: db_dependency,
-                      create_user_request: CreateUserRequest):
-    create_user_model = Users(
-        email=create_user_request.email,
-        username=create_user_request.username,
-        first_name=create_user_request.first_name,
-        last_name=create_user_request.last_name,
-        role=create_user_request.role,
-        hashed_password=bcrypt_context.hash(create_user_request.password),
-        is_active=True,
-        phone_number=create_user_request.phone_number
-    )
-
-    db.add(create_user_model)
-    db.commit()
+@router.post("/login")
+def login(email: str, password: str, db: Session = Depends(get_db)):
+    staff = db.query(Staff).filter(Staff.email == email).first()
+    if not staff or not pwd_context.verify(password, staff.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    return {"message": "Login successful", "staff_id": staff.id, "role": staff.role}
