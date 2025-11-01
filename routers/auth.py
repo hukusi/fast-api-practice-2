@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from database import SessionLocal
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from models import User as UserModel
+from schemas import User as UserSchema, UserCreate
 from typing import Annotated
 from jose import jwt, JWTError
 from datetime import timedelta, datetime, timezone
@@ -61,6 +62,19 @@ def login(email: str, password: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"message": "Login successful", "staff_id": staff.id, "role": staff.role}
 
+@router.post("/", response_model=UserSchema)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = UserModel(
+        name=user.name,
+        age=user.age,
+        gender=user.gender,
+        role=user.role,
+        password=pwd_context.hash(user.password),
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 @router.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
